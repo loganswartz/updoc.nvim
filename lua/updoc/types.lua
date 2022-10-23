@@ -50,10 +50,10 @@ function M.Environment:parse(value)
     return target
 end
 
-function M.Environment.get_current()
+function M.Environment.get(env)
     local ft = vim.bo.filetype
 
-    return require('updoc.environments')[ft]
+    return require('updoc.environments')[env or ft]
 end
 
 return M

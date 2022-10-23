@@ -4,14 +4,13 @@ local Environment = require('updoc.types').Environment
 
 local M = {}
 
-function M.lookup()
-    local env = Environment.get_current()
+function M.lookup(type)
+    local env = Environment.get(type)
     if env == nil then
         vim.notify("No doc environment found for filetype '" .. vim.bo.filetype .. "'!")
         return
     end
 
-    print(vim.inspect(env))
     local function callback(input)
         local url = env:lookup(env:parse(input))
         if url == nil then

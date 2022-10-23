@@ -61,11 +61,37 @@ function M.get_ts_context()
 
     local node = ts_utils.get_node_at_cursor()
     if node:type() == 'property_identifier' then
-        local object = node:prev_named_sibling()
-        return { contents(object), contents(node) }
+        local namespace = node:prev_named_sibling()
+        return { namespace = contents(namespace), object = contents(node) }
     else
-        return { contents(node), nil }
+        return { namespace = nil, object = contents(node) }
     end
+end
+
+function M.get_definition_uri()
+    local result = vim.lsp.buf_request_sync(0, 'textDocument/definition', vim.lsp.util.make_position_params())
+    local uri = result and result[2].result[1].uri
+
+    return uri
+end
+
+function M.get_context()
+    local ts_context = M.get_ts_context()
+    local definition = M.get_definition_uri()
+
+    return {
+        namespace = ts_context.namespace,
+        object = ts_context.object,
+        uri = definition,
+    }
+end
+
+function M.check_link_valid(link)
+    vim.fn.system({ 'curl', '-s', '-L', '--head', '--fail', link })
+    local rc = vim.v.shell_error
+
+    -- 22 means a 4xx error, typically 404
+    return rc ~= 22
 end
 
 return M

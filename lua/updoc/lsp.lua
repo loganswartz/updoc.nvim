@@ -15,7 +15,7 @@ function M.handle_lsp_request(value)
     elseif #links == 1 then
         utils.open_link(links[1])
     else
-        M.mount_link_menu(links)
+        require('updoc.ui').mount_link_menu(links)
     end
 end
 

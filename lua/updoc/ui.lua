@@ -41,7 +41,7 @@ function M.make_link_menu(links)
 
     local menu = Menu(popup_options, {
         lines = lines,
-        max_width = 60,
+        max_width = 80,
         keymap = {
             focus_next = { "j", "<Down>", "<Tab>" },
             focus_prev = { "k", "<Up>", "<S-Tab>" },

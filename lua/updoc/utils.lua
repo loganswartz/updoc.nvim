@@ -24,13 +24,33 @@ end
 
 function M.find_links(value)
     local pattern = "https?://[%w-_%.%?%.:/%+=&#]+"
-    return M.collect(string.gmatch(value, pattern))
+    local collected = M.collect(string.gmatch(value, pattern))
+    return M.unique(collected)
+end
+
+function M.unique(iterator)
+    local hash = {}  -- hash for performance
+    local unique = {}
+
+    for _, value in ipairs(iterator) do
+       if (not hash[value]) then
+           hash[value] = true  -- mark as found
+           unique[#unique+1] = value
+       end
+    end
+
+    return unique
 end
 
 function M.open_link(link)
     local Job = require('plenary.job')
+    local opener = M.get_opener()
 
-    return Job:new({ command = M.get_opener(), args = { link } }):start()
+    if not vim.fn.executable(opener) then
+        return Job:new({ command = opener, args = { link } }):start()
+    else
+        vim.notify("Tried to open '" .. link .. "', but '" .. opener .. "' was not found.")
+    end
 end
 
 function M.collect(...)
@@ -92,6 +112,31 @@ function M.check_link_valid(link)
 
     -- 22 means a 4xx error, typically 404
     return rc ~= 22
+end
+
+-- http://lua-users.org/wiki/StringRecipes
+function M.char_to_hex(c)
+    return string.format("%%%02X", string.byte(c))
+end
+
+function M.hex_to_char(x)
+    return string.char(tonumber(x, 16))
+end
+
+function M.url_encode(str)
+   if str then
+      str = str:gsub("\n", "\r\n")
+      str = str:gsub("([^%w %-%_%.%~])", M.char_to_hex)
+      str = str:gsub(" ", "+")
+   end
+   return str
+end
+
+function M.url_decode(str)
+   str = str:gsub("+", " ")
+   str = str:gsub("%%(%x%x)", M.hex_to_char)
+   str = str:gsub("\r\n", "\n")
+   return str
 end
 
 return M

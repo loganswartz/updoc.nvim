@@ -13,11 +13,18 @@ function M.DocSource:new(obj)
 end
 
 function M.DocSource:lookup(target)
-    if target.namespace == nil then
-        error("Not enough info passed. (target was '" .. target .. "')")
+    error('Lookup not supported for ' .. self.name .. '.')
+end
+
+function M.DocSource:search(query)
+    if self.search_path == nil then
+        error('Searching not supported for ' .. self.name .. '.')
     end
 
-    return self.index .. '/' .. target.namespace .. (target.object and '#' .. target.object or '')
+    local encoded = utils.url_encode(query)
+    local escaped = encoded:gsub('%%', '%%%%')
+
+    return self.index .. self.search_path:gsub('%%s', escaped)
 end
 
 M.Environment = {}

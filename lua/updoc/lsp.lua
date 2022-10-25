@@ -1,4 +1,5 @@
 local utils = require('updoc.utils')
+local ui = require('updoc.ui')
 
 local M = {}
 
@@ -15,11 +16,11 @@ function M.handle_lsp_request(value)
     elseif #links == 1 then
         utils.open_link(links[1])
     else
-        require('updoc.ui').mount_link_menu(links)
+        return ui.make_link_menu(links):mount()
     end
 end
 
-function M.make_lsp_request()
+function M.show_hover_links()
     --@see :h lsp-response
     local function handle(error, result, ctx, config)
         local body = result.contents[2]

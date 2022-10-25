@@ -13,6 +13,9 @@ use {
         'nvim-lua/plenary.nvim',
         'nvim-treesitter/nvim-treesitter',
         'MunifTanjim/nui.nvim',
-    }
+    },
+    config = function()
+        require('updoc').setup()
+    end,
 }
 ```

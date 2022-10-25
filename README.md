@@ -2,7 +2,7 @@
 
 Open documentation for anything you're working on.
 
-# Installation
+## Installation
 
 With packer.nvim:
 
@@ -18,4 +18,13 @@ use {
         require('updoc').setup()
     end,
 }
+```
+## Usage
+
+```lua
+-- get search results for a source
+require('updoc').search()
+
+-- lookup a specific namespace or object for the current environment
+require('updoc').lookup()
 ```

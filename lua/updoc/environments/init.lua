@@ -1,5 +1,8 @@
-local utils = require('updoc.utils')
+local environments = {
+    python = require('updoc.environments.python'),
+    javascript = require('updoc.environments.javascript'),
+    typescriptreact = require('updoc.environments.typescriptreact'),
+    rust = require('updoc.environments.rust'),
+}
 
-local proxy = utils.create_lookup('updoc.environments')
-
-return proxy
+return environments

@@ -35,7 +35,8 @@ function M.search(name)
         return M.search_source(name)
     end
 
-    local sources = vim.tbl_keys(require('updoc.sources'))
+    local source_map = require('updoc.sources')
+    local sources = vim.tbl_keys(source_map)
 
     if utils.has_telescope() then
         local pickers = require("telescope.pickers")
@@ -50,14 +51,22 @@ function M.search(name)
                 prompt_title = "Sources",
                 finder = finders.new_table {
                     results = sources,
+                    entry_maker = function(entry)
+                        return {
+                            value = entry,
+                            display = source_map[entry].name,
+                            ordinal = source_map[entry].name,
+                        }
+                    end
                 },
                 sorter = conf.generic_sorter(opts),
                 attach_mappings = function(prompt_bufnr, map)
                     actions.select_default:replace(function()
                         actions.close(prompt_bufnr)
                         local selection = action_state.get_selected_entry()
+                        print(vim.inspect(selection))
 
-                        M.search_source(selection[1])
+                        M.search_source(selection.value)
                     end)
 
                     return true

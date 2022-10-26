@@ -22,9 +22,8 @@ function M.DocSource:search(query)
     end
 
     local encoded = utils.url_encode(query)
-    local escaped = encoded:gsub('%%', '%%%%')
 
-    return self.index .. self.search_path:gsub('%%s', escaped)
+    return self.index .. string.format(self.search_path, encoded)
 end
 
 M.Environment = {}

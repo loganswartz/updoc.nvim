@@ -1,8 +1,3 @@
-local environments = {
-    python = require('updoc.environments.python'),
-    javascript = require('updoc.environments.javascript'),
-    typescriptreact = require('updoc.environments.typescriptreact'),
-    rust = require('updoc.environments.rust'),
-}
+local utils = require('updoc.utils')
 
-return environments
+return utils.autoload_submodule_map('updoc.environments')

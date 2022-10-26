@@ -42,6 +42,10 @@ function M.unique(iterator)
     return unique
 end
 
+function M.split_string(input, delimiter)
+    return M.collect(string.gmatch(input, "[^" .. [[\]] .. delimiter .. "]+"))
+end
+
 function M.open_link(link)
     local Job = require('plenary.job')
     local opener = M.get_opener()
@@ -137,6 +141,51 @@ function M.url_decode(str)
    str = str:gsub("%%(%x%x)", M.hex_to_char)
    str = str:gsub("\r\n", "\n")
    return str
+end
+
+function M.has_telescope()
+    local ok, _ = pcall(require, 'telescope')
+    return ok
+end
+
+function M.find_files(module)
+    if type(module) == 'table' then
+        module = table.concat(module, '/')
+    end
+
+    local rtp = vim.opt.rtp._value
+    local normalized = 'lua/' .. string.gsub(module, '%.', '/')
+
+    local files = vim.fn.globpath(rtp, normalized .. '/*.lua', nil, true) or {}
+    local modules = vim.fn.globpath(rtp, normalized .. '/*/init.lua', nil, true) or {}
+
+    local function omit_init_lua(item)
+        local matches = string.gmatch(item, '.*/' .. normalized .. '/init.lua')
+        return #M.collect(matches) == 0
+    end
+
+    local filtered = vim.tbl_extend('force', vim.tbl_filter(omit_init_lua, files), modules)
+
+    local function unmap_path(path)
+        return vim.fn.fnamemodify(path, ':t:r')
+    end
+
+    local converted = vim.tbl_map(unmap_path, filtered)
+    return converted
+end
+
+-- Autoloads all modules inside the namespace, and returns a map of module_name => require('module_name')
+function M.autoload_submodule_map(namespace)
+    if type(module) == 'table' then
+        namespace = table.concat(namespace, '/')
+    end
+
+    local mapping = {}
+    for _, module in pairs(M.find_files(namespace)) do
+        mapping[module] = require(namespace .. '.' .. module)
+    end
+
+    return mapping
 end
 
 return M

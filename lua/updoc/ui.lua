@@ -4,6 +4,7 @@ local utils = require('updoc.utils')
 
 local M = {}
 
+---@param title string
 local function get_border_opts(title)
     return {
         style = "rounded",
@@ -22,6 +23,7 @@ local function auto_unmount(component)
     return component
 end
 
+---@param links string[]
 function M.make_link_menu(links)
     local lines = {}
 
@@ -34,6 +36,10 @@ function M.make_link_menu(links)
     return M.make_menu("[Links Found]", lines)
 end
 
+---@param title string
+---@param lines any[]
+---@param popup_opts table|nil
+---@param menu_opts table|nil
 function M.make_menu(title, lines, popup_opts, menu_opts)
     local popup_options = vim.tbl_deep_extend('force', {
         position = "50%",
@@ -63,6 +69,10 @@ function M.make_menu(title, lines, popup_opts, menu_opts)
     return auto_unmount(menu)
 end
 
+---@alias TextPromptCallback fun(input: string)
+
+---@param title string
+---@param on_submit TextPromptCallback
 function M.make_text_prompt(title, on_submit)
     local input = Input({
         position = "50%",

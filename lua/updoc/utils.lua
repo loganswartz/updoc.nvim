@@ -3,6 +3,7 @@ local ts_utils = require('nvim-treesitter.ts_utils')
 
 local M = {}
 
+-- Get the correct program for opening links on the current OS.
 function M.get_opener()
     local cmds = {
         windows = 'explorer.exe',
@@ -22,6 +23,8 @@ function M.get_opener()
     return opener
 end
 
+---@param value string
+---@return string[]
 function M.find_links(value)
     local pattern = "https?://[%w-_%.%?%.:/%+=&#]+"
     local collected = M.collect(string.gmatch(value, pattern))
@@ -42,10 +45,13 @@ function M.unique(iterator)
     return unique
 end
 
+---@param input string
+---@param delimiter string
 function M.split_string(input, delimiter)
     return M.collect(string.gmatch(input, "[^" .. [[\]] .. delimiter .. "]+"))
 end
 
+---@param link string
 function M.open_link(link)
     local Job = require('plenary.job')
     local opener = M.get_opener()
@@ -66,6 +72,7 @@ function M.collect(...)
 end
 
 -- Create a table that loads a lua module when accessing an attribute.
+---@param path string
 function M.create_lookup(path)
     local mt = {
         __index = function(table, key)
@@ -76,6 +83,7 @@ function M.create_lookup(path)
     return setmetatable({}, mt)
 end
 
+---@return Target
 function M.get_ts_context()
     local bufnr = vim.api.nvim_get_current_buf() or 0
 
@@ -92,6 +100,7 @@ function M.get_ts_context()
     end
 end
 
+---@return string
 function M.get_definition_uri()
     local result = vim.lsp.buf_request_sync(0, 'textDocument/definition', vim.lsp.util.make_position_params())
     local uri = result and result[2].result[1].uri
@@ -110,6 +119,7 @@ function M.get_context()
     }
 end
 
+---@param link string
 function M.check_link_valid(link)
     vim.fn.system({ 'curl', '-s', '-L', '--head', '--fail', link })
     local rc = vim.v.shell_error
@@ -148,6 +158,8 @@ function M.has_telescope()
     return ok
 end
 
+---@param module string|string[]
+---@return { [string]: string }
 function M.find_files(module)
     if type(module) == 'table' then
         module = table.concat(module, '/')
@@ -175,8 +187,9 @@ function M.find_files(module)
 end
 
 -- Autoloads all modules inside the namespace, and returns a map of module_name => require('module_name')
+---@param namespace string|string[]
 function M.autoload_submodule_map(namespace)
-    if type(module) == 'table' then
+    if type(namespace) == 'table' then
         namespace = table.concat(namespace, '/')
     end
 

@@ -13,6 +13,7 @@ function M.lookup(type)
         return
     end
 
+    ---@type TextPromptCallback
     local function callback(input)
         local url = env:lookup(env:parse(input))
         if url == nil then
@@ -64,7 +65,6 @@ function M.search(name)
                     actions.select_default:replace(function()
                         actions.close(prompt_bufnr)
                         local selection = action_state.get_selected_entry()
-                        print(vim.inspect(selection))
 
                         M.search_source(selection.value)
                     end)
@@ -113,8 +113,9 @@ end
 
 M.show_hover_links = require('updoc.lsp').show_hover_links
 
+---@param opts Options|nil
 function M.setup(opts)
-    options = vim.tbl_deep_extend('force', options, opts)
+    options = vim.tbl_deep_extend('force', options, opts or {})
 end
 
 return M

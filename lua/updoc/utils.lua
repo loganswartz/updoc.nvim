@@ -56,7 +56,7 @@ function M.open_link(link)
     local Job = require('plenary.job')
     local opener = M.get_opener()
 
-    if not vim.fn.executable(opener) then
+    if vim.fn.executable(opener) then
         return Job:new({ command = opener, args = { link } }):start()
     else
         vim.notify("Tried to open '" .. link .. "', but '" .. opener .. "' was not found.")

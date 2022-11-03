@@ -28,7 +28,9 @@ function M.lookup(type)
     end
 
     local input = ui.make_text_prompt("[Find Docs]", callback)
-    return input:mount()
+    return vim.schedule(function()
+        input:mount()
+    end)
 end
 
 function M.search(name)
@@ -83,7 +85,9 @@ function M.search(name)
             })
         end
 
-        return ui.make_menu('[What source?]', lines):mount()
+        return vim.schedule(function()
+            ui.make_menu('[What source?]', lines):mount()
+        end)
     end
 end
 
@@ -108,7 +112,9 @@ function M.search_source(name)
     end
 
     local input = ui.make_text_prompt("[Search " .. source.name .. "]", callback)
-    return input:mount()
+    return vim.schedule(function()
+        input:mount()
+    end)
 end
 
 M.show_hover_links = require('updoc.lsp').show_hover_links

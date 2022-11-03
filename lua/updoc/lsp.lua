@@ -13,7 +13,9 @@ function M.parse_links_from_hover(value)
     elseif #links == 1 then
         utils.open_link(links[1])
     else
-        return ui.make_link_menu(links):mount()
+        return vim.schedule(function()
+            ui.make_link_menu(links):mount()
+        end)
     end
 end
 

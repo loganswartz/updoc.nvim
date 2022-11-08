@@ -5,7 +5,7 @@ local M = {}
 ---@class DocSource
 ---@field index string The URI representing the index of the source
 ---@field name string The human-readable name for the source
----@field new fun(obj: table): DocSource Create a new instance of the class
+---@field new fun(self: DocSource, obj: table): DocSource Create a new instance of the class
 ---@field lookup fun(self: DocSource, target: table) Lookup a URI for the currently targeted object
 ---@field search_path string A format string for building a search URI
 ---@field search fun(query: string) Search the source for a given query string
@@ -41,7 +41,7 @@ end
 ---@class Environment
 ---@field sources DocSource[] An array of sources that are related to the environment / filetype.
 ---@field delimiters string[] An array of delimiters for the language that can separate namespaces, attributes, etc.
----@field new fun(obj: table): Environment Create a new instance of the class.
+---@field new fun(self: Environment, obj: table): Environment Create a new instance of the class.
 ---@field lookup fun(self: Environment, target: Target) Lookup a URI for the currently targeted object.
 ---@field parse fun(self: Environment, value: string): Target A format string for building a search URI.
 ---@field get fun(env: string|nil): Environment Fetch an environment by name.

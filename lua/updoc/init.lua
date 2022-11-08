@@ -1,5 +1,3 @@
-local Menu = require('nui.menu')
-local ui = require('updoc.ui')
 local utils = require('updoc.utils')
 local Environment = require('updoc.types').Environment
 local options = require('updoc.options')
@@ -13,9 +11,12 @@ function M.lookup(type)
         return
     end
 
-    ---@type TextPromptCallback
     local function callback(input)
+        -- do nothing if input was cancelled
+        if input == nil then return end
+
         local url = env:lookup(env:parse(input))
+
         if url == nil then
             vim.notify('Failed to find documentation.')
             return
@@ -27,9 +28,8 @@ function M.lookup(type)
         utils.open_link(url)
     end
 
-    local input = ui.make_text_prompt("[Find Docs]", callback)
     return vim.schedule(function()
-        input:mount()
+        vim.ui.input({ prompt = "[Find Docs]" }, callback)
     end)
 end
 
@@ -41,53 +41,24 @@ function M.search(name)
     local source_map = require('updoc.sources')
     local sources = vim.tbl_keys(source_map)
 
-    if utils.has_telescope() then
-        local pickers = require("telescope.pickers")
-        local finders = require("telescope.finders")
-        local conf = require("telescope.config").values
-        local actions = require("telescope.actions")
-        local action_state = require("telescope.actions.state")
+    return vim.schedule(function()
+        vim.ui.select(sources, {
+            prompt = 'Sources',
+            format_item = function(item) return source_map[item].name end,
+        },
+            function(input)
+                -- do nothing if input was cancelled
+                if input == nil then return end
 
-        local pick = function(opts)
-            opts = opts or {}
-            pickers.new(opts, {
-                prompt_title = "Sources",
-                finder = finders.new_table {
-                    results = sources,
-                    entry_maker = function(entry)
-                        return {
-                            value = entry,
-                            display = source_map[entry].name,
-                            ordinal = source_map[entry].name,
-                        }
-                    end
-                },
-                sorter = conf.generic_sorter(opts),
-                attach_mappings = function(prompt_bufnr, map)
-                    actions.select_default:replace(function()
-                        actions.close(prompt_bufnr)
-                        local selection = action_state.get_selected_entry()
+                M.search_source(input)
+            end
+        )
+    end)
+end
 
-                        M.search_source(selection.value)
-                    end)
-
-                    return true
-                end,
-            }):find()
-        end
-
-        return pick()
-    else
-        local lines = {}
-        for _, source in pairs(sources) do
-            lines[#lines+1] = Menu.item(source, {
-                callback = function() M.search_source(source) end,
-            })
-        end
-
-        return vim.schedule(function()
-            ui.make_menu('[What source?]', lines):mount()
-        end)
+function M.search_fn(name)
+    return function()
+        return M.search(name)
     end
 end
 
@@ -98,8 +69,11 @@ function M.search_source(name)
         return
     end
 
-    local function callback(query)
-        local url = source:search(query)
+    local function callback(input)
+        -- do nothing if input was cancelled
+        if input == nil then return end
+
+        local url = source:search(input)
         if url == nil then
             vim.notify('Failed to find documentation.')
             return
@@ -111,13 +85,16 @@ function M.search_source(name)
         utils.open_link(url)
     end
 
-    local input = ui.make_text_prompt("[Search " .. source.name .. "]", callback)
     return vim.schedule(function()
-        input:mount()
+        vim.ui.input({ prompt = "[Search " .. source.name .. "]" }, callback)
     end)
 end
 
 M.show_hover_links = require('updoc.lsp').show_hover_links
+
+M.print_available_sources = function()
+    print(vim.inspect(vim.tbl_keys(require('updoc.sources'))))
+end
 
 ---@param opts Options|nil
 function M.setup(opts)

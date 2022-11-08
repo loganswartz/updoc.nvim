@@ -153,11 +153,6 @@ function M.url_decode(str)
    return str
 end
 
-function M.has_telescope()
-    local ok, _ = pcall(require, 'telescope')
-    return ok
-end
-
 ---@param module string|string[]
 ---@return { [string]: string }
 function M.find_files(module)

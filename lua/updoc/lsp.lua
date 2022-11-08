@@ -1,11 +1,10 @@
 local utils = require('updoc.utils')
-local ui = require('updoc.ui')
 
 local M = {}
 
 -- Parse all the links from a body of text, and show a selection menu for opening them.
 ---@param value string
-function M.parse_links_from_hover(value)
+function M.handle_links_from_hover(value)
     local links = utils.find_links(value);
 
     if #links == 0 then
@@ -14,7 +13,12 @@ function M.parse_links_from_hover(value)
         utils.open_link(links[1])
     else
         return vim.schedule(function()
-            ui.make_link_menu(links):mount()
+            vim.ui.select(links, { prompt = "Links Found" }, function(url)
+                -- do nothing if input was cancelled
+                if url == nil then return end
+
+                utils.open_link(url)
+            end)
         end)
     end
 end
@@ -31,7 +35,7 @@ function M.show_hover_links()
             vim.notify("No hover text was found!")
         end
 
-        return M.parse_links_from_hover(value)
+        return M.handle_links_from_hover(value)
     end
 
     vim.lsp.buf_request(0, 'textDocument/hover', vim.lsp.util.make_position_params(), handle)

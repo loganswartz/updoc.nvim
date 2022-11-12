@@ -6,7 +6,7 @@ local pypi = DocSource:new({
     lookup = function(self, target, uri)
         return self.index .. '/project/' .. (target.namespace or target.object)
     end,
-    search_path = '/search/?q=%s',
+    search_path = '/search?q=%s',
 })
 
 return pypi

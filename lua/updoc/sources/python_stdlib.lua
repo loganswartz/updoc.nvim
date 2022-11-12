@@ -4,7 +4,6 @@ local python_stdlib = DocSource:new({
     name = 'Python Standard Library',
     index = 'https://docs.python.org/3',
     lookup = function(self, target, uri)
-        print(vim.inspect(target))
         local namespace = target.namespace
         local object = target.object
 

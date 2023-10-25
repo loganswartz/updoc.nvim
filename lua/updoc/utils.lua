@@ -32,14 +32,14 @@ function M.find_links(value)
 end
 
 function M.unique(iterator)
-    local hash = {}  -- hash for performance
+    local hash = {} -- hash for performance
     local unique = {}
 
     for _, value in ipairs(iterator) do
-       if (not hash[value]) then
-           hash[value] = true  -- mark as found
-           unique[#unique+1] = value
-       end
+        if (not hash[value]) then
+            hash[value] = true -- mark as found
+            unique[#unique + 1] = value
+        end
     end
 
     return unique
@@ -56,7 +56,7 @@ function M.open_link(link)
     local Job = require('plenary.job')
     local opener = M.get_opener()
 
-    if vim.fn.executable(opener) then
+    if vim.fn.executable(opener) ~= 0 then
         return Job:new({ command = opener, args = { link } }):start()
     else
         vim.notify("Tried to open '" .. link .. "', but '" .. opener .. "' was not found.")
@@ -138,19 +138,19 @@ function M.hex_to_char(x)
 end
 
 function M.url_encode(str)
-   if str then
-      str = str:gsub("\n", "\r\n")
-      str = str:gsub("([^%w %-%_%.%~])", M.char_to_hex)
-      str = str:gsub(" ", "+")
-   end
-   return str
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", M.char_to_hex)
+        str = str:gsub(" ", "+")
+    end
+    return str
 end
 
 function M.url_decode(str)
-   str = str:gsub("+", " ")
-   str = str:gsub("%%(%x%x)", M.hex_to_char)
-   str = str:gsub("\r\n", "\n")
-   return str
+    str = str:gsub("+", " ")
+    str = str:gsub("%%(%x%x)", M.hex_to_char)
+    str = str:gsub("\r\n", "\n")
+    return str
 end
 
 ---@param module string|string[]

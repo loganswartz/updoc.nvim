@@ -52,7 +52,8 @@ function M.split_string(input, delimiter)
 end
 
 ---@param link string
-function M.open_link(link)
+---@param source DocSource
+function M.open_in_browser(link, source)
     local Job = require('plenary.job')
     local opener = M.get_opener()
 

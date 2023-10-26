@@ -4,6 +4,7 @@ local options = require('updoc.options')
 
 local M = {}
 
+---@param type string|nil
 function M.lookup(type)
     local env = Environment.get(type)
     if env == nil then
@@ -15,7 +16,8 @@ function M.lookup(type)
         -- do nothing if input was cancelled
         if input == nil then return end
 
-        local url = env:lookup(env:parse(input))
+        local target = env:parse(input)
+        local url = env:lookup(target)
 
         if url == nil then
             vim.notify('Failed to find documentation.')
@@ -25,14 +27,15 @@ function M.lookup(type)
         if options.show_url_on_open then
             vim.notify("Opening '" .. url .. "'.")
         end
-        utils.open_link(url)
+        options.handlers.lookup(url, env, target)
     end
 
     return vim.schedule(function()
-        vim.ui.input({ prompt = "[Find Docs]" }, callback)
+        vim.ui.input({ prompt = "[Jump to Docs]" }, callback)
     end)
 end
 
+---@param name string|nil
 function M.search(name)
     if name ~= nil then
         return M.search_source(name)
@@ -43,9 +46,9 @@ function M.search(name)
 
     return vim.schedule(function()
         vim.ui.select(sources, {
-            prompt = 'Sources',
-            format_item = function(item) return source_map[item].name end,
-        },
+                prompt = 'Sources',
+                format_item = function(item) return source_map[item].name end,
+            },
             function(input)
                 -- do nothing if input was cancelled
                 if input == nil then return end
@@ -56,12 +59,14 @@ function M.search(name)
     end)
 end
 
+---@param name string|nil
 function M.search_fn(name)
     return function()
         return M.search(name)
     end
 end
 
+---@param name string|nil
 function M.search_source(name)
     local source = require('updoc.sources')[name]
     if source == nil then
@@ -82,7 +87,7 @@ function M.search_source(name)
         if options.show_url_on_open then
             vim.notify("Opening '" .. url .. "'...")
         end
-        utils.open_link(url)
+        options.handlers.search(url, source)
     end
 
     return vim.schedule(function()

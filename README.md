@@ -4,18 +4,23 @@ Open documentation for anything you're working on.
 
 ## Installation
 
-With packer.nvim:
+Here's a simple example setup with lazy.nvim:
 
 ```lua
 use {
     'loganswartz/updoc.nvim',
-    requires = {
+    dependencies = {
         'nvim-lua/plenary.nvim',
         'nvim-treesitter/nvim-treesitter',
+    },
+    keys = {
+        { '<C-k>', function() require('updoc').show_hover_links() end },
+        { '<leader>ds', function() require('updoc').search() end },
     },
     config = function()
         require('updoc').setup()
     end,
+    -- or just `config = true`
 }
 ```
 
@@ -26,6 +31,11 @@ The following are the default options:
 ```lua
 {
     show_url_on_open = false,  -- when opening a URL, show it in a notification as well
+    handlers = {  -- these all have slightly different signatures, check options.lua for types
+        lookup = require('updoc.utils').open_in_browser,
+        search = require('updoc.utils').open_in_browser,
+        hover = require('updoc.utils').open_in_browser,
+    },
 }
 ```
 
@@ -56,8 +66,17 @@ require('updoc').search('python_stdlib')
 --
 --   vim.keymap.set('n', '<C-p>', function() require('updoc').search('python_stdlib') end)
 
--- Lookup a specific namespace or object for the current environment
+-- Lookup a specific namespace or object for the current environment.
 require('updoc').lookup()
+-- `lookup` is a bit finnicky at the moment, and typically requires some extra
+-- information to work at all:
+--
+--   1. a predictable URL scheme for the source
+--   2. some pre-existing knowledge of the layout of the doc source
+--
+-- I have some ideas for improving this in the future, but currently there's
+-- only a few sources that are actually useful at all in this mode (namely:
+-- 'python_stdlib', 'rust_stdlib', 'docs_rs', and one or two others)
 ```
 
 There's also some convenience functions to give you some useful information for

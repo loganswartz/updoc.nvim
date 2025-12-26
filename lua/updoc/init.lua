@@ -1,4 +1,3 @@
-local utils = require('updoc.utils')
 local Environment = require('updoc.types').Environment
 local options = require('updoc.options')
 

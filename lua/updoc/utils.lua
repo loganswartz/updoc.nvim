@@ -1,5 +1,4 @@
 local ts = vim.treesitter
-local ts_utils = require("nvim-treesitter.ts_utils")
 
 local M = {}
 
@@ -26,7 +25,7 @@ end
 ---@param value string
 ---@return string[]
 function M.find_links(value)
-    local pattern = "https?://[%w-_%.%?%.:/%+=&#]+"
+    local pattern = "https?://[%w-_%.%?%.%%:/%+=&#]+"
     local collected = M.collect(string.gmatch(value, pattern))
 
     return M.unique(collected)
@@ -92,7 +91,9 @@ function M.get_ts_context()
         return ts.query.get_node_text(node, bufnr)
     end
 
-    local node = ts_utils.get_node_at_cursor()
+    local get_node_at_cursor = vim.treesitter.get_node_at_cursor
+        or require("nvim-treesitter.ts_utils").get_node_at_cursor
+    local node = get_node_at_cursor()
     if node and node:type() == "property_identifier" then
         local namespace = node:prev_named_sibling()
         return { namespace = contents(namespace), object = contents(node) }
